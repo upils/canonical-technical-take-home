@@ -8,4 +8,4 @@ test:
 
 .PHONY: run
 run:
-	go run main.go -path=test.txt -n=5
+	go run main.go -path=tests/test.txt -n=5
