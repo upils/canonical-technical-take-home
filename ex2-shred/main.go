@@ -9,6 +9,12 @@ import (
 	"os"
 )
 
+var (
+	ErrEmptyPath    error = fmt.Errorf("no file given, nothing to shred")
+	ErrNoIterration error = fmt.Errorf("no iterations to run, nothing to do")
+	ErrPathIsDir    error = fmt.Errorf("given path is a directory, nothing to do")
+)
+
 func main() {
 	var iterationsFlag uint
 	flag.UintVar(&iterationsFlag, "n", 0, "number of iterations")
@@ -22,15 +28,13 @@ func main() {
 	}
 }
 
-// shred overwrites the file at the given path with "iterations" times
+// shred overwrites the file at the given path, "iterations" times
 func shred(path string, iterations uint) error {
 	if len(path) == 0 {
-		log.Println("No file given, nothing to shred")
-		return nil
+		return ErrEmptyPath
 	}
 	if iterations == 0 {
-		log.Println("No iterations to run, nothing to do")
-		return nil
+		return ErrNoIterration
 	}
 
 	fmt.Printf("Will shred %v times %s\n", iterations, path)
@@ -41,8 +45,7 @@ func shred(path string, iterations uint) error {
 	}
 
 	if fileInfo.IsDir() {
-		log.Println("Given path is a directory, nothing to do")
-		return nil
+		return ErrPathIsDir
 	}
 
 	f, err := os.OpenFile(path, os.O_WRONLY, 0755)
@@ -51,7 +54,17 @@ func shred(path string, iterations uint) error {
 	}
 	defer f.Close()
 
-	_, err = io.CopyN(f, rand.Reader, fileInfo.Size())
+	var i uint
+	for i = 0; i < iterations; i++ {
+		_, err = f.Seek(0, 0)
+		if err != nil {
+			return err
+		}
+		_, err = io.CopyN(f, rand.Reader, fileInfo.Size())
+		if err != nil {
+			return err
+		}
+	}
 
-	return err
+	return nil
 }
