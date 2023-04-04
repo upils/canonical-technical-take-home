@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"testing"
@@ -61,6 +62,7 @@ func Test_shred(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		fileContent := []byte("test")
 		if tt.createTarget {
 			err := os.WriteFile(tt.args.path, []byte("test"), 0655)
 			if err != nil {
@@ -72,6 +74,16 @@ func Test_shred(t *testing.T) {
 			err := shred(tt.args.path, tt.args.iterations)
 			if (err != nil) && !errors.Is(err, tt.wantErr) {
 				t.Errorf("shred() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if tt.wantErr == nil {
+				afterShred, err := os.ReadFile(tt.args.path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if bytes.Equal(afterShred, fileContent) {
+					t.Error("no shred happened")
+				}
 			}
 		})
 	}
