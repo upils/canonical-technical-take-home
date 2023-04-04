@@ -64,6 +64,11 @@ func shred(path string, iterations uint) error {
 		if err != nil {
 			return err
 		}
+
+		err = f.Sync()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
