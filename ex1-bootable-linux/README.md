@@ -9,3 +9,7 @@ You can use any version/flavor of the Linux kernel. The script can either downlo
 The script shouldn’t ask for any user input unless superuser privileges are necessary for some functionality, therefore any additional information that you require for the script should be available in your repository.
 
 The script should run within the working directory and not consume any other locations on the host file system.
+
+## Notes
+
+In the current state this is not working without asking user input. In the time frame I was unable to properly configure busybox to be built statically.
